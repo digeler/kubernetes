@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sql-service
+  labels:
+    app: sqlinux
+spec:
+  clusterIP: None # <--
+  ports:
+  - port: 1433
+    name: sql-service
+  
+    
+  selector:
+    app: sqlinux

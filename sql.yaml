@@ -1,0 +1,40 @@
+
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: sqlserverstatefulset
+spec:
+  serviceName: "sqlservice"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: sqlservice
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: sqlinux
+          image: microsoft/mssql-server-linux
+          env:
+            - name: SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql
+                  key: SA_PASSWORD
+            - name: ACCEPT_EULA
+              value: "Y"
+          ports:
+            - containerPort: 1433
+          volumeMounts:
+            - name: mssql-data
+              mountPath: /data/db
+  volumeClaimTemplates:
+  - metadata:
+      name: mssql-data
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "azure-disk"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 100Gi
